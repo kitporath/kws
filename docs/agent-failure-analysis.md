@@ -23,7 +23,7 @@ Three systems were working on the estate concurrently:
 | **Agent B** — hosted coding agent | repository redaction before public release |
 | **Local model** — self-hosted reasoning model on the inference host | read-only security review of the cluster |
 
-Every claim any of them made — including my own — was checked against the running
+Every claim any of them made, including my own, was checked against the running
 system: `kubectl` against live objects, PromQL against the metrics store, Hubble
 flow records, `git` against actual history. A claim counts as an error if a
 competent operator acting on it would have done the wrong thing.
@@ -40,15 +40,16 @@ the failures had in common.
 The distribution matters more than the count:
 
 - **6 of 8 were errors in verification or reporting**, not in the work. The
-  underlying engineering was largely sound — real CVEs were closed, real images
-  were mirrored, real redaction was applied — and then described inaccurately.
+  underlying engineering was largely sound. Real CVEs were closed, real images
+  were mirrored, and real redaction was applied. The description of that work
+  was inaccurate.
 - **2 of 8 were errors in the work itself**, and both were caused by a verification
   error upstream.
 - **3 of the 8 were mine.** An audit that only catches other systems is measuring
   the auditor's confidence, not the systems.
 
 The single most useful finding: **7 of the 8 were an instrument pointed at the
-wrong surface.** Not hallucination, not incompetence — a measurement that was
+wrong surface.** Not hallucination, not incompetence. A measurement that was
 technically executed correctly against something other than the thing in question.
 
 ---
@@ -81,14 +82,14 @@ cert-manager components.
 The cause: workloads reference images by *upstream* name (`rancher/…`,
 `quay.io/jetstack/…`) while the manifest lists them under the *internal mirror*
 name. A registry-mirror configuration is precisely what makes those the same
-image — so a literal string comparison reports "unused" for the most load-bearing
+image, so a literal string comparison reports "unused" for the most load-bearing
 images on the platform.
 
 Worse, the manifest is not an inventory of what runs today; it is the **airgap
 baseline**. Images not running now are exactly what a reschedule or a cold start
 needs. A prior full-power-loss recovery on this estate was extended by exactly this
-condition — pods rescheduling onto nodes with no cached image and no route to the
-internet — and the fix at the time was populating that manifest.
+condition: pods rescheduling onto nodes with no cached image and no route to the
+internet. The fix at the time was populating that manifest.
 
 The accompanying "48 → 29 CVEs" was entirely an artefact of deleting the rows.
 
@@ -100,7 +101,7 @@ The accompanying "48 → 29 CVEs" was entirely an artefact of deleting the rows.
 
 The local model correctly established that network policy existed in only 2 of 23
 namespaces, that zero CNI-native policies existed, and that the CNI's enforcement
-mode was the permissive default — "enforce only where a policy selects the pod."
+mode was the permissive default, "enforce only where a policy selects the pod."
 All three verified true.
 
 It then prescribed setting that same mode to `default`, describing it as
@@ -122,7 +123,7 @@ over 25 hours, and **called the finding fabricated**.
 
 The alert rules live in the dashboard layer's unified alerting, which does not
 write `ALERTS` series into the metrics store. Checked correctly, the alert had been
-firing since **2026-08-01T11:02:20** with **6** objects — the exact timestamp and
+firing since **2026-08-01T11:02:20** with **6** objects. The exact timestamp and
 the exact count reported.
 
 I had reached for the strongest possible verdict on the weakest possible evidence:
@@ -152,7 +153,7 @@ A redaction pass ran as an ordinary commit and was validated by a CI gate that
 checks the working tree. Both passed. Both were correct about the tree.
 
 Identifiers inside files that had been *deleted before the redaction ran* never
-entered the tree, so no tree-scoped check could see them — and they remained
+entered the tree, so no tree-scoped check could see them, and they remained
 trivially retrievable with `git log -p`. The redaction commit's own diff contained
 the values it was removing.
 
@@ -183,7 +184,7 @@ an opaque authentication failure.
 
 Compounding it: I had never checked the value was obtainable. The location the
 repository documented for it was stale, and the credential was not there either.
-The correct output was never a command — it was "this needs a value I cannot
+The correct output was never a command. It was "this needs a value I cannot
 confirm exists."
 
 > **Countermeasure.** Never hand someone a command containing a value you have not
@@ -207,14 +208,14 @@ surface.**
 | unsourced prose | recollection | the repository |
 | unverified command | assumption | the credential store |
 
-The eighth — the self-negating fix — is a semantic error rather than an
+The eighth, the self-negating fix, is a semantic error rather than an
 instrumentation one, and I am not going to force it into the pattern. Seven of
 eight is the honest number.
 
 **None of these look like the failure mode people expect from language models.**
 Nothing was invented from nothing. Every wrong claim was the faithful output of a
 real measurement, taken against something adjacent to the question. Which means the
-defence is not "check whether the model is hallucinating" — it is **check whether
+defence is not "check whether the model is hallucinating". It is **check whether
 the measurement addresses the claim.**
 
 The corollary that matters for anyone running agents against production: the work
@@ -238,8 +239,8 @@ Each countermeasure above was implemented, not just written down:
   one.
 - Redaction procedure now enumerates history directly and re-verifies against a
   fresh clone of the published bytes.
-- A monitoring gap found while auditing — the estate's auto-unseal root of trust
-  was scraped by nothing at all — was closed with a probe and three alert rules,
+- A monitoring gap found while auditing (the estate's auto-unseal root of trust
+  was scraped by nothing at all) was closed with a probe and three alert rules,
   each verified *firable* by substituting the failure value, because this codebase
   had previously shipped three alert rules that were structurally incapable of
   firing and had let an 80-minute outage pass unnoticed.
@@ -255,7 +256,7 @@ about.
 
 An incident record shows you can recover a platform. This shows you can **run AI
 agents against production and tell the difference between work that is done and
-work that is reported done** — which is the harder skill, and the one that decides
+work that is reported done**, which is the harder skill, and the one that decides
 whether an organisation can safely scale agent-directed engineering at all.
 
 The estate's operating rule predates this analysis and survives it unchanged:

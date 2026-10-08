@@ -4,7 +4,7 @@ Real incidents on a production private AI cloud, written the way I'd want to rea
 what happened, what I did, what it cost, and what I got wrong.
 
 Technical substance retained; hostnames, addresses, VM identifiers and site-specific
-details removed — see [`../SANITIZATION.md`](../SANITIZATION.md). Full STAR forms for
+details removed, see [`../SANITIZATION.md`](../SANITIZATION.md). Full STAR forms for
 interviews live in private material.
 
 ---
@@ -16,30 +16,30 @@ interviews live in private material.
 **Situation.** Total power loss to the estate. Every physical host, the distributed
 storage layer, the database cluster, the hypervisor control plane and the Kubernetes
 cluster went down hard, at once, with no graceful shutdown. One host then failed to come
-back at all — its BIOS boot order had been lost and needed repairing at the console.
+back at all. Its BIOS boot order had been lost and needed repairing at the console.
 
 **Action.** Recovered bottom-up in dependency order, verifying each layer before starting
 the next. That order is the whole lesson, and I had it written down because a *planned*
 drill six days earlier had produced it:
 
-1. **Physical hosts** — power on; repair the lost boot entry at the console.
-2. **Distributed block storage** — nothing to do. A hardening change made days earlier
+1. **Physical hosts**, power on; repair the lost boot entry at the console.
+2. **Distributed block storage**, nothing to do. A hardening change made days earlier
    (disabling automatic eviction) meant zero evictions; satellites reconnected and
    resynced unaided. Verify only.
-3. **Database cluster** — self-formed into a primary component, 3/3 synced, no manual
+3. **Database cluster**, self-formed into a primary component, 3/3 synced, no manual
    bootstrap, thanks to an earlier hardening pass. I still treat manual bootstrap as the
    fallback: self-forming is not guaranteed when nodes die at different times.
-4. **Hypervisor control plane** — came up on its own once the database was there.
-5. **Virtual machines** — resumed in waves: gateway, then control plane, then storage and
-   workers, then service VMs. **Expected and hit a retry pass** — resumes issued while
+4. **Hypervisor control plane**, came up on its own once the database was there.
+5. **Virtual machines**, resumed in waves: gateway, then control plane, then storage and
+   workers, then service VMs. **Expected and hit a retry pass**, resumes issued while
    replicated disks are still reconnecting fail, because the volume has no connected
    up-to-date peer yet. Six of sixteen hit it; a second pass ten minutes later succeeded
    for all.
-6. **Network gateway pair** — the hard part. See below.
-7. **Kubernetes** — started by hand on every node, by design. Control-plane nodes took
+6. **Network gateway pair**. The hard part. See below.
+7. **Kubernetes**, started by hand on every node, by design. Control-plane nodes took
    5–15 minutes each for quorum and defragmentation; one was IO-starved by three VMs
    cold-booting simultaneously against network-remote disks. Patience, not a defect.
-8. **In-cluster convergence** — largely automatic once the API was up, except the secrets
+8. **In-cluster convergence**, largely automatic once the API was up, except the secrets
    chain and an image-availability trap.
 
 **Result.** Everything recovered. **No data loss. No split-brain.** All VMs running, all
@@ -57,12 +57,12 @@ re-registered on its own.
 I then replaced the theory-written runbook with a **verified** one, and fixed what the
 outage exposed the same evening.
 
-**What it exposed** — the value of an unplanned outage is that it finds what a drill
+**What it exposed**. The value of an unplanned outage is that it finds what a drill
 cannot:
 
 - **The "HA" gateway pair was a cold-start single point of failure.** A known reload race
   killed the load balancer on *both* gateways during boot, and the watchdog meant to catch
-  exactly that had never started — its log was empty. The active gateway held the virtual
+  exactly that had never started. Its log was empty. The active gateway held the virtual
   IP as a black hole: answering ARP, serving nothing. **Fixed the same evening** with
   file-locking around config regeneration and the watchdog rebuilt under a supervisor with
   heartbeat logging, then validated by hard-rebooting both gateways. Failover measured at
@@ -82,7 +82,7 @@ cannot:
 
 **The honest comparison.** My previous-generation platform, on an immutable Kubernetes
 distribution, recovered from the same outage **completely hands-off**. This one needed
-manual gates. Most are deliberate — I want a human deciding when a control plane rejoins.
+manual gates. Most are deliberate. I want a human deciding when a control plane rejoins.
 One was not: an automatic VM-resume hook I had specified and never built would have
 removed roughly twenty minutes of manual work and the disk race entirely.
 
@@ -97,8 +97,8 @@ from an unbuilt one.
 **Situation.** A multi-node HA Kubernetes control plane was *claimed* HA and had never
 been failure-tested. Claimed and tested are different words.
 
-**Action.** Deliberately failed control-plane capacity — hard-killing a host running two
-of three members — to find out what would happen before it happened on its own. Confirmed
+**Action.** Deliberately failed control-plane capacity, hard-killing a host running two
+of three members, to find out what would happen before it happened on its own. Confirmed
 fail-safe behaviour; found placement drift, with members co-located on one physical host;
 enforced anti-affinity and spread.
 
@@ -115,7 +115,7 @@ choose its own timing.
 operation.
 
 **Action.** Recovered membership and restored database quorum, then root-caused it rather
-than stopping at "it works again" — a false-negative in a retry path, where empty output
+than stopping at "it works again". A false-negative in a retry path, where empty output
 was read as failure and "corrected" by destroying a healthy node.
 
 **Result.** Quorum restored; the failure mode closed at source.
@@ -127,7 +127,7 @@ restoring service and fixing a bug.
 
 ## 4. Work reported "done" that wasn't
 
-**Situation.** Multiple subsystems were reported healthy and complete — by tooling, by
+**Situation.** Multiple subsystems were reported healthy and complete, by tooling, by
 dashboards, and by AI assistants working on the platform.
 
 **Action.** Checked live state instead of reading the reports. Found a crash-looping
@@ -166,7 +166,7 @@ to a discovery mid-operation instead of restarting.
 misleading account-level message that pointed nowhere useful.
 
 **Action.** Traced it below the error string to an interaction between the service
-account's shell and a forced command — a `nologin`-class failure that reports as an
+account's shell and a forced command. A `nologin`-class failure that reports as an
 authorization problem. Fixed the shell while keeping the key restricted to git only.
 
 **Result.** Platform git-over-SSH restored, verified with a real operation rather than a
