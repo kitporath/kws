@@ -37,7 +37,7 @@ I design the system and make the decisions. AI implements under direction. I **v
 against live state** and course-correct, and when it's wrong, I write that down too.
 Every major primitive carries judgment from earlier generations rather than an agent
 inventing the architecture; the lineage runs
-[Asgard](https://github.com/sovereignty-labs/asgard) → KWS.
+[Asgard](https://github.com/kitporath/asgard) → KWS.
 
 The operational knowledge lives in the repo the agents read: a runbook of traps that
 already cost real time, dated incident records, and proven primitives. Live state is
@@ -79,8 +79,8 @@ TEST-NET addresses and are illustrative rather than a turnkey deploy.
 That line is itself part of the work: knowing what can be published, and proving it
 with a gate rather than a promise.
 
-**Related** · [Asgard](https://github.com/sovereignty-labs/asgard) — the platform
-generation before this one · [Sovereignty Labs](https://github.com/sovereignty-labs)
+**Related** · [Asgard](https://github.com/kitporath/asgard) — the platform
+generation before this one · [kitporath.com](https://kitporath.com)
 
 ## License
 
